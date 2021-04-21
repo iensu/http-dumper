@@ -1,9 +1,13 @@
-FROM node:12-alpine
+FROM node:12-alpine AS build-env
 
 COPY ./ /app
 
 WORKDIR /app
 
-RUN npm ci
+RUN npm ci --only=production
 
-ENTRYPOINT ["node", "index.js"]
+FROM gcr.io/distroless/nodejs:12
+COPY --from=build-env /app /app
+WORKDIR /app
+
+CMD ["index.js"]
